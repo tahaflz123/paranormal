@@ -33,20 +33,24 @@ public class CommentService {
 		this.postRepository = postRepository;
 	}
 	
-	public Comment createComment(Long postId, CommentCreationRequest request) {
+	public CommentResponse createComment(Long postId, CommentCreationRequest request) {
 		Post post = this.postRepository.findById(postId).get();
 		User user = this.userService.getLoggedInUser();
 		if(post == null) {
 			throw new AuthenticationException("Post is null");
 		}
-		
 		Comment comment = Comment.builder()
 				.content(request.getContent())
 				.post(post)
 				.sender(user)
 				.build();
 		comment.setCreatedDate(new Date());
-		return this.commentRepository.save(comment);
+		Comment saved = this.commentRepository.save(comment);
+		return CommentResponse.builder().content(saved.getContent())
+				.id(comment.getId())
+				.sender(UserService.userToResponse(saved.getSender()))
+				.postId(postId)
+				.build();
 	}
 	
 	public List<Comment> findAll(){
@@ -66,7 +70,10 @@ public class CommentService {
 	}
 	
 	public static CommentResponse commentToResponse(Comment comment) {
-		return CommentResponse.builder().id(comment.getId()).content(comment.getContent())
-				.id(comment.getId()).sender(UserService.userToResponse(comment.getSender())).build();
+		return CommentResponse.builder()
+				.id(comment.getId())
+				.content(comment.getContent())
+				.postId(comment.getPost().getId())
+				.sender(UserService.userToResponse(comment.getSender())).build();
 	}
 }
