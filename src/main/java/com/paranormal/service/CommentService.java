@@ -63,8 +63,10 @@ public class CommentService {
 	
 	public static List<CommentResponse> commentsToResponseList(List<Comment> comments){
 		List<CommentResponse> response = new ArrayList<CommentResponse>();
-		for(Comment comment : comments) {
-			response.add(CommentService.commentToResponse(comment));
+		if(comments != null) {
+			for(Comment comment : comments) {
+				response.add(CommentService.commentToResponse(comment));
+			}
 		}
 		return response;
 	}
