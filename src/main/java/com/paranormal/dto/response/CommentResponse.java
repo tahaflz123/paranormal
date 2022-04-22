@@ -13,4 +13,6 @@ public class CommentResponse {
 	
 	private UserResponse sender;
 	
+	private Long postId;
+	
 }
