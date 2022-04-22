@@ -5,6 +5,8 @@ import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.paranormal.dto.request.PostCreationRequest;
@@ -28,7 +30,7 @@ public class PostService {
 		this.commentService = commentService;
 	}
 	
-	public Post createPost(PostCreationRequest request) {
+	public PostResponse createPost(PostCreationRequest request) {
 		if(postRepository.existsByHeader(request.getHeader())) {
 			throw new AuthenticationException("Post already exists");
 		}
@@ -36,9 +38,11 @@ public class PostService {
 				.header(request.getHeader())
 				.content(request.getContent())
 				.user(this.userService.getLoggedInUser())
+				.comment(null)
 				.build();
 		post.setCreatedDate(new Date());
-		return this.postRepository.save(post);
+		PostResponse response = PostService.postToResponse(this.postRepository.save(post));
+		return response;
 	}
 	
 	public Post findById(Long id) {
@@ -61,7 +65,7 @@ public class PostService {
 	
 	public static List<PostResponse> postsToResponseList(List<Post> posts){
 		List<PostResponse> responses = new ArrayList<PostResponse>();
-		if(responses.size() != 0) {
+		if(posts != null) {
 			for(Post p : posts) {
 				responses.add(PostService.postToResponse(p));
 			}
@@ -77,5 +81,18 @@ public class PostService {
 				.header(post.getHeader())
 				.user(UserService.userToResponse(post.getUser()))
 				.build();
+	}
+
+	public List<PostResponse> findAllByPage(int p) {
+		if(Integer.valueOf(p) == null) {
+			p = 0;
+		}
+		Pageable pageable = PageRequest.of(p, 20);
+		List<Post> posts = this.postRepository.findAll(pageable).toList();
+		for(Post post : posts) {
+			post.setComment(null);
+			post.getUser().setPosts(null);
+		}
+		return PostService.postsToResponseList(posts);
 	}
 }
