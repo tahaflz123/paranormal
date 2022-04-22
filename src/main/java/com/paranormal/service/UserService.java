@@ -2,6 +2,8 @@ package com.paranormal.service;
 
 
 
+import java.util.Date;
+import java.util.List;
 import java.util.logging.Logger;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +14,7 @@ import org.springframework.stereotype.Service;
 import com.paranormal.config.JWTService;
 import com.paranormal.dto.request.LoginRequest;
 import com.paranormal.dto.request.RegistrationRequest;
+import com.paranormal.dto.response.UserResponse;
 import com.paranormal.entity.user.User;
 import com.paranormal.exception.AuthenticationException;
 import com.paranormal.repository.UserRepository;
@@ -42,8 +45,9 @@ public class UserService {
 				.username(request.getUsername())
 				.email(request.getEmail())
 				.password(this.passwordEncoder.encode(request.getPassword()))
-				.post(null)
+				.posts(null)
 				.build();
+		user.setCreatedDate(new Date());
 		return this.userRepository.save(user);
 	}
 	
@@ -61,5 +65,13 @@ public class UserService {
 			throw new AuthenticationException("You should login for creating post");
 		}
 		return this.userRepository.findByEmail(email);
+	}
+	
+	public List<User> findAll(){
+		return this.userRepository.findAll();
+	}
+	
+	public static UserResponse userToResponse(User user) {
+		return UserResponse.builder().id(user.getId()).posts(PostService.postsToResponseList(user.getPosts())).username(user.getUsername()).build();
 	}
 }
