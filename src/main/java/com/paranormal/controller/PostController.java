@@ -24,7 +24,7 @@ public class PostController {
 	private PostService postService;
 	
 	@PostMapping("/create")
-	public Post create(@RequestBody PostCreationRequest request) {
+	public PostResponse create(@RequestBody PostCreationRequest request) {
 		return this.postService.createPost(request);
 	}
 	
@@ -34,8 +34,8 @@ public class PostController {
 	}
 	
 	@GetMapping("/all")
-	public List<Post> all(){
-		return this.postService.all();
+	public List<PostResponse> findAllByPage(@PathParam(value = "p") int p){
+		return this.postService.findAllByPage(p);
 	}
 	
 	
