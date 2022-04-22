@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.paranormal.dto.request.CommentCreationRequest;
+import com.paranormal.dto.response.CommentResponse;
 import com.paranormal.entity.comment.Comment;
 import com.paranormal.service.CommentService;
 
@@ -24,7 +25,7 @@ public class CommentController {
 	
 	
 	@PostMapping("/create")
-	public Comment createComment(@PathParam("id") Long id, @RequestBody CommentCreationRequest request) {
+	public CommentResponse createComment(@PathParam("id") Long id, @RequestBody CommentCreationRequest request) {
 		return this.commentService.createComment(id, request);
 	}
 	
