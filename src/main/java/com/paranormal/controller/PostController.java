@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.paranormal.dto.request.PostCreationRequest;
+import com.paranormal.dto.response.PostResponse;
 import com.paranormal.entity.post.Post;
 import com.paranormal.service.PostService;
 
@@ -27,8 +28,9 @@ public class PostController {
 		return this.postService.createPost(request);
 	}
 	
-	public Post findById(@PathParam("id") Long id) {
-		return this.postService.findById(id);
+	@GetMapping
+	public PostResponse findById(@PathParam("id") Long id) {
+		return this.postService.findByIdWithComments(id);
 	}
 	
 	@GetMapping("/all")
