@@ -17,7 +17,7 @@ import com.paranormal.service.CommentService;
 
 @RestController
 @RequestMapping("/api/comment")
-public class CommentRepository {
+public class CommentController {
 
 	@Autowired
 	private CommentService commentService;
