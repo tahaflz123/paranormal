@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import com.paranormal.dto.request.PostCreationRequest;
 import com.paranormal.dto.response.PostResponse;
+import com.paranormal.dto.response.UserResponse;
 import com.paranormal.entity.comment.Comment;
 import com.paranormal.entity.post.Post;
 import com.paranormal.exception.AuthenticationException;
@@ -89,6 +90,16 @@ public class PostService {
 		}
 		Pageable pageable = PageRequest.of(p, 20);
 		List<Post> posts = this.postRepository.findAll(pageable).toList();
+		for(Post post : posts) {
+			post.setComment(null);
+			post.getUser().setPosts(null);
+		}
+		return PostService.postsToResponseList(posts);
+	}
+
+	public List<PostResponse> findPostsByHeaderLike(String q) {
+		Pageable pageable = PageRequest.of(0, 5);
+		List<Post> posts = this.postRepository.findAllByHeaderLike(q, pageable).toList();
 		for(Post post : posts) {
 			post.setComment(null);
 			post.getUser().setPosts(null);
