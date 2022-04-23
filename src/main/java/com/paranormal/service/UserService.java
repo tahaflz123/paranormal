@@ -2,11 +2,14 @@ package com.paranormal.service;
 
 
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -71,7 +74,26 @@ public class UserService {
 		return this.userRepository.findAll();
 	}
 	
+	public static List<UserResponse> usersToResponseList(List<User> users){
+		List<UserResponse> response = new ArrayList<UserResponse>();
+		if(users != null) {
+			for(User user : users) {
+				response.add(UserService.userToResponse(user));
+			}
+		}
+		return response;
+	}
+	
 	public static UserResponse userToResponse(User user) {
 		return UserResponse.builder().id(user.getId()).posts(PostService.postsToResponseList(user.getPosts())).username(user.getUsername()).build();
+	}
+
+	public List<UserResponse> findUsersByUsernameLike(String q) {
+		Pageable pageable = PageRequest.of(0, 5);
+		List<User> users = this.userRepository.findAllByUsernameLike(q, pageable).toList();
+		for(User user : users) {
+			user.setPosts(null);
+		}
+		return UserService.usersToResponseList(users);
 	}
 }
