@@ -17,4 +17,5 @@ public class UserResponse {
 	private String username;
 	
 	private List<PostResponse> posts;
+
 }
