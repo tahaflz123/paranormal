@@ -1,0 +1,5 @@
+SET FOREIGN_KEY_CHECKS=0;
+TRUNCATE TABLE test.users;
+TRUNCATE TABLE test.posts;
+TRUNCATE TABLE test.comments;
+TRUNCATE TABLE test.likes;
