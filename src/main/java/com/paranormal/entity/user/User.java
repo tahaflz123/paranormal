@@ -23,7 +23,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 @Entity
-@Table(name = "user")
+@Table(name = "users")
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -38,8 +38,4 @@ public class User extends BaseEntity {
 	private String email;
 	
 	private String password;
-	
-	@OneToMany(mappedBy = "user",fetch = FetchType.LAZY)
-	private List<Post> posts;
-
 }
