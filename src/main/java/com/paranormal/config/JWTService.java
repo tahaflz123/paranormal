@@ -24,7 +24,7 @@ public class JWTService {
 		Date currentDate = new Date();
 		return Jwts.builder()
 				.signWith(this.getSignKey(), SignatureAlgorithm.HS256)
-				.setSubject(email).setExpiration(new Date(currentDate.getTime() + (7 * 24 * 60 * 60 * 100)))
+				.setSubject(email).setExpiration(new Date(currentDate.getTime() + (7 * 24 * 60 * 60 * 1000)))
 				.setIssuedAt(currentDate)
 				.compact();
 	}
