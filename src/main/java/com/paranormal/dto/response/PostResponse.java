@@ -2,6 +2,8 @@ package com.paranormal.dto.response;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import lombok.Builder;
 import lombok.Data;
 
@@ -15,9 +17,10 @@ public class PostResponse {
 	
 	private String content;
 	
+	@JsonIgnoreProperties(value = "posts")
 	private UserResponse user;
 	
 	private List<CommentResponse> comments;
 	
-	
+	private Integer likes;
 }
