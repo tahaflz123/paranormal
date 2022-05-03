@@ -18,6 +18,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.paranormal.entity.BaseEntity;
 import com.paranormal.entity.comment.Comment;
+import com.paranormal.entity.like.Like;
 import com.paranormal.entity.user.User;
 
 import lombok.AllArgsConstructor;
@@ -28,7 +29,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 @Entity
-@Table(name = "post")
+@Table(name = "posts")
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -45,8 +46,4 @@ public class Post extends BaseEntity{
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id")
 	private User user;
-	
-	@OneToMany(mappedBy = "post",fetch = FetchType.LAZY,cascade = CascadeType.ALL)
-	public List<Comment> comment;
-	
 }
