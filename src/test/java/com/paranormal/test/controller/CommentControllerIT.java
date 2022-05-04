@@ -3,8 +3,6 @@ package com.paranormal.test.controller;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import java.util.List;
-
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,12 +19,10 @@ import org.springframework.test.context.jdbc.Sql;
 import com.paranormal.dto.request.CommentCreationRequest;
 import com.paranormal.dto.response.CommentResponse;
 import com.paranormal.dto.response.ErrorModel;
-import com.paranormal.entity.comment.Comment;
 import com.paranormal.service.ErrorMessagesService;
 import com.paranormal.service.ErrorMessagesService.Key;
 import com.paranormal.test.helper.CommentHelper;
 import com.paranormal.test.helper.LoginHelper;
-import com.paranormal.test.helper.PostHelper;
 import com.paranormal.test.helper.UserHelper;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
