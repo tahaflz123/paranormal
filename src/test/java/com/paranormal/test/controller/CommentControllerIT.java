@@ -61,7 +61,7 @@ public class CommentControllerIT {
 	
 	@Test
 	@DisplayName(value = "Test for Creating Comment with Invalid Post ID")
-	void given_invalid_post_id_when_create_comment_with_post_id_then_it_should_return_210_and_error_model() {
+	void given_invalid_post_id_when_create_comment_with_post_id_then_it_should_return_410_and_error_model() {
 		String token = LoginHelper.loginWithDefaultUser(restTemplate);
 		Long postId = 0L;
 		CommentCreationRequest request = new CommentCreationRequest();
@@ -116,19 +116,15 @@ public class CommentControllerIT {
 	
 	@Test
 	@DisplayName(value = "Test for Find Comment with ID")
-	void given_comment_id_when_find_comment_then_it_should_return_200_and_comment() {
+	void given_comment_id_when_find_comment_then_it_should_return_200_and_comment_response() {
 		Long commentId = 3L;
 		
-		final ResponseEntity<Comment> response = this.restTemplate.getForEntity("/api/comment?id=" + commentId, Comment.class);
+		final ResponseEntity<CommentResponse> response = this.restTemplate.getForEntity("/api/comment?id=" + commentId, CommentResponse.class);
 		
 		assertNotNull(response);
 		assertNotNull(response.getBody());
         assertEquals(response.getStatusCodeValue(), 200);
         assertEquals(response.getBody().getContent(), CommentHelper.CONTENT);
-		assertEquals(response.getBody().getSender().getEmail(), UserHelper.getEmail());
-		assertEquals(response.getBody().getSender().getUsername(), UserHelper.getUsername());
-		assertEquals(response.getBody().getSender().getPassword(), UserHelper.getPassword());
-		assertEquals(response.getBody().getPost().getContent(), PostHelper.getContent());
-		assertEquals(response.getBody().getPost().getHeader(), PostHelper.getHeader());
+        assertEquals(response.getBody().getSender().getUsername(), "crazy_boy");
 	}
 }
