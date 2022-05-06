@@ -59,14 +59,14 @@ public class PostServiceTest {
 	@Order(1)
 	void createPost() {
 		PostCreationRequest request = new PostCreationRequest();
-		request.setHeader("header");
-		request.setContent("content");
+		request.setHeader(PostHelper.getHeader());
+		request.setContent(PostHelper.getContent());
 		
 		User user = UserHelper.createUser();
 		
 		Post post = PostHelper.createPost();
 		
-		when(this.postRepository.existsByHeader(post.getHeader())).thenReturn(false);
+		when(this.postRepository.existsByHeader(request.getHeader())).thenReturn(false);
 		when(this.userService.getLoggedInUser()).thenReturn(user);
 		when(this.postRepository.save(any(Post.class))).thenReturn(post);
 		
