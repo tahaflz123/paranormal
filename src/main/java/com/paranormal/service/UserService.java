@@ -87,6 +87,11 @@ public class UserService {
 		return this.userRepository.findAll();
 	}
 	
+	public User findById(Long id) {
+		return this.userRepository.findById(id).orElseThrow(() -> 
+		new ParanormalException(ErrorCode.NO_RESOURCE, ErrorMessagesService.getMessage(Key.NO_RESOURCE)));
+	}
+	
 	public static List<UserResponse> usersToResponseList(List<User> users){
 		List<UserResponse> response = new ArrayList<UserResponse>();
 		if(users != null) {
@@ -128,5 +133,37 @@ public class UserService {
 		Pageable pageable = PageRequest.of(0, 5);
 		List<User> users = this.userRepository.findAllByUsernameLike(q, pageable).toList();
 		return UserService.usersToResponseList(users);
+	}
+
+	public Boolean deleteUser(Long id) {
+		User user = this.getLoggedInUser();
+		
+		if(user.getDeleted()) {
+			throw new ParanormalException(ErrorCode.ALREADY_DELETED, ErrorMessagesService.getMessage(Key.ALREADY_DELETED));
+		}
+		
+		if(!(user.getId() == id)) {
+			throw new ParanormalException(ErrorCode.UNAUTHORIZED, ErrorMessagesService.getMessage(Key.UNAUTHORIZED));
+		}
+		user.setDeleted(true);
+		this.userRepository.save(user);
+		return true;
+	}
+	
+	public Boolean deleteUserAsAdmin(Long id) {
+		User admin = this.getLoggedInUser();
+		User user = this.findById(id);
+		
+		if(user.getDeleted()) {
+			throw new ParanormalException(ErrorCode.ALREADY_DELETED, ErrorMessagesService.getMessage(Key.ALREADY_DELETED));
+		}
+		
+		if(!(admin.getRole().equals(UserRole.ADMIN))) {
+			throw new ParanormalException(ErrorCode.UNAUTHORIZED, ErrorMessagesService.getMessage(Key.UNAUTHORIZED));
+		}
+		
+		user.setDeleted(true);
+		this.userRepository.save(user);
+		return true;
 	}
 }
