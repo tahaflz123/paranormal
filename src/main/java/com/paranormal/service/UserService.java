@@ -105,7 +105,7 @@ public class UserService {
 	}
 	
 	//TODO: Finds all posts with user id
-	public UserResponse findUserByIdWithUserPosts(Long id) {
+	public UserResponse findUserByIdWithPosts(Long id) {
 		User user = this.userRepository.findById(id)
 				.orElseThrow(() -> new ParanormalException(ErrorCode.NO_RESOURCE, 
 						this.errorMessagesService.getMessage(ErrorMessagesService.Key.NO_RESOURCE)));
