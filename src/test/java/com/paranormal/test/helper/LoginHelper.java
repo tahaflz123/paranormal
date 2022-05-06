@@ -18,7 +18,32 @@ public class LoginHelper {
 		ResponseEntity<String> response = restTemplate.postForEntity("/api/user/login", request, String.class);
 		logger.info(restTemplate.toString());
 		logger.info(response.getBody());
+		logger.info("Response -> ", response.toString());
 		logger.info(request.toString());
+		return response.getBody();
+	}
+	
+	public static String loginWithAdmin(TestRestTemplate restTemplate) {
+		LoginRequest request = new LoginRequest();
+		request.setEmail("email@paranormal.com");
+		request.setPassword(UserHelper.getNativePassword());
+		
+		ResponseEntity<String> response = restTemplate.postForEntity("/api/user/login", request, String.class);
+		logger.info("Response -> {}", response.toString());
+		logger.info("Admin Token {}", response.getBody());
+		return response.getBody();
+	}
+	
+	public static String loginWithCustomEmail(String email,TestRestTemplate restTemplate) {
+		LoginRequest request = new LoginRequest();
+		request.setEmail(email);
+		request.setPassword(UserHelper.getNativePassword());
+		
+		final ResponseEntity<String> response = restTemplate.postForEntity("/api/user/login", request, String.class);
+	
+		logger.info("Custom Email, {}", email);
+		logger.info("Custom Login Response, {}", response.toString());
+		logger.info("Custom Login Request, {}", response.toString());
 		return response.getBody();
 	}
 }
