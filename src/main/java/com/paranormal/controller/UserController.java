@@ -2,6 +2,8 @@ package com.paranormal.controller;
 
 import java.util.List;
 
+import javax.websocket.server.PathParam;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -11,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.paranormal.dto.request.LoginRequest;
 import com.paranormal.dto.request.RegistrationRequest;
+import com.paranormal.dto.response.UserResponse;
 import com.paranormal.entity.user.User;
 import com.paranormal.service.UserService;
 
@@ -31,10 +34,9 @@ public class UserController {
 		return this.userService.login(request);
 	}
 	
-	@GetMapping("/all")
-	public List<User> findAll(){
-		return this.userService.findAll();
+	@GetMapping
+	public UserResponse findUserByIdWithUserPosts(@PathParam("id") Long id) {
+		return this.userService.findUserByIdWithPosts(id);
 	}
-	
 
 }
