@@ -46,4 +46,8 @@ public class Post extends BaseEntity{
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id")
 	private User user;
+	
+	@Column(nullable = false)
+	@Builder.Default
+	private Boolean deleted = false;
 }
