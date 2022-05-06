@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.paranormal.dto.request.PostCreationRequest;
@@ -34,7 +35,7 @@ public class PostController {
 	}
 	
 	@GetMapping("/all")
-	public List<PostResponse> findAllByPage(@PathParam(value = "p") int p){
+	public List<PostResponse> findAllByPage(@RequestParam(value = "p", defaultValue = "0") int p){
 		return this.postService.findAllByPage(p);
 	}
 	
