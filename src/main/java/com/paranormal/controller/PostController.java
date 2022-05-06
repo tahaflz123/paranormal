@@ -5,6 +5,7 @@ import java.util.List;
 import javax.websocket.server.PathParam;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -37,6 +38,11 @@ public class PostController {
 	@GetMapping("/all")
 	public List<PostResponse> findAllByPage(@RequestParam(value = "p", defaultValue = "0") int p){
 		return this.postService.findAllByPage(p);
+	}
+	
+	@DeleteMapping("/delete")
+    public Boolean deletByPostId(@PathParam("id") Long id) {
+		return this.postService.deletePostById(id);
 	}
 	
 	
