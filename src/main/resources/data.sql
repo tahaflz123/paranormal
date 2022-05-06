@@ -24,3 +24,12 @@ VALUES (8, now(), 'some comments', 2, 1, false);
 
 INSERT INTO comments (id, created_date, content, post_id, user_id, deleted)
 VALUES (9, now(), 'this comment deleted', 2, 1, true);
+
+INSERT INTO users (id, created_date, username, password, email, role, deleted)
+VALUES (10, now(), 'someusername', '$2a$10$JdMSNoDmdvZ.sB91Cn8QrOuLn86GQHhdAGSTWVbZOc1INzx.KxnTO', 'testemail@mail.com', 'USER', false);
+
+INSERT INTO users (id, created_date, username, password, email, role, deleted)
+VALUES (11, now(), 'superusername', '$2a$10$JdMSNoDmdvZ.sB91Cn8QrOuLn86GQHhdAGSTWVbZOc1INzx.KxnTO', 'testemail@asfd.com', 'USER', false);
+
+INSERT INTO users (id, created_date, username, password, email, role, deleted)
+VALUES (12, now(), 'supersuperusername', '$2a$10$JdMSNoDmdvZ.sB91Cn8QrOuLn86GQHhdAGSTWVbZOc1INzx.KxnTO', 'asdfasdf@asfd.com', 'USER', true);
