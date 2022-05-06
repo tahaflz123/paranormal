@@ -11,11 +11,13 @@ import org.springframework.stereotype.Service;
 
 import com.paranormal.dto.request.PostCreationRequest;
 import com.paranormal.dto.response.PostResponse;
-import com.paranormal.dto.response.UserResponse;
 import com.paranormal.entity.comment.Comment;
 import com.paranormal.entity.post.Post;
-import com.paranormal.exception.AuthenticationException;
+import com.paranormal.entity.user.User;
+import com.paranormal.exception.ErrorCode;
+import com.paranormal.exception.ParanormalException;
 import com.paranormal.repository.PostRepository;
+import com.paranormal.service.ErrorMessagesService.Key;
 
 @Service
 public class PostService {
@@ -23,23 +25,28 @@ public class PostService {
 	private PostRepository postRepository;
 	private UserService userService;
 	private CommentService commentService;
+	private LikeService likeService;
+	private ErrorMessagesService errorMessagesService;
 
 	@Autowired
-	public PostService(PostRepository postRepository, UserService userService, CommentService commentService) {
+	public PostService(LikeService likeService, PostRepository postRepository, 
+			UserService userService, CommentService commentService, ErrorMessagesService errorMessagesService) {
 		this.postRepository = postRepository;
 		this.userService = userService;
 		this.commentService = commentService;
+		this.likeService = likeService;
+		this.errorMessagesService = errorMessagesService;
 	}
 	
 	public PostResponse createPost(PostCreationRequest request) {
 		if(postRepository.existsByHeader(request.getHeader())) {
-			throw new AuthenticationException("Post already exists");
+			throw new ParanormalException(ErrorCode.POST_HEADER_CONFLICT, this.errorMessagesService.getMessage(Key.POST_HEADER_CONFLICT));
 		}
+		User user = this.userService.getLoggedInUser();
 		Post post = Post.builder()
 				.header(request.getHeader())
 				.content(request.getContent())
-				.user(this.userService.getLoggedInUser())
-				.comment(null)
+				.user(user)
 				.build();
 		post.setCreatedDate(new Date());
 		PostResponse response = PostService.postToResponse(this.postRepository.save(post));
@@ -47,16 +54,22 @@ public class PostService {
 	}
 	
 	public Post findById(Long id) {
-		return this.postRepository.findById(id).get();
+		return this.postRepository.findById(id)
+				.orElseThrow(() -> new ParanormalException(ErrorCode.NO_RESOURCE,
+						this.errorMessagesService.getMessage(ErrorMessagesService.Key.NO_RESOURCE)));
 	}
 	
+	// TODO: finds all comments with post id
 	public PostResponse findByIdWithComments(Long id) {
-		Post post = this.postRepository.findById(id).get();
-		for(Comment comment : post.getComment()) {
-			comment.getSender().setPosts(null);
-		}
-		post.getUser().setPosts(null);
+		Post post = this.findById(id);
+		
+		List<Comment> comments = this.commentService.findAllByPostId(id);
 		PostResponse response = PostService.postToResponse(post);
+		
+		if(comments != null) {
+			response.setComments(CommentService.commentsToResponseList(comments));
+		}
+		response.setLikes(this.likeService.countOfPostLikes(id));
 		return response;
 	}
 	
@@ -75,9 +88,11 @@ public class PostService {
 	}
 	
 	public static PostResponse postToResponse(Post post) {
+		if(post == null) {
+			return null;
+		}
 		return PostResponse.builder()
 				.id(post.getId())
-				.comments(CommentService.commentsToResponseList(post.getComment()))
 				.content(post.getContent())
 				.header(post.getHeader())
 				.user(UserService.userToResponse(post.getUser()))
@@ -85,25 +100,23 @@ public class PostService {
 	}
 
 	public List<PostResponse> findAllByPage(int p) {
-		if(Integer.valueOf(p) == null) {
-			p = 0;
-		}
 		Pageable pageable = PageRequest.of(p, 20);
 		List<Post> posts = this.postRepository.findAll(pageable).toList();
-		for(Post post : posts) {
-			post.setComment(null);
-			post.getUser().setPosts(null);
+		List<PostResponse> response = PostService.postsToResponseList(posts);
+		for(PostResponse r : response) {
+			r.setLikes(this.likeService.countOfPostLikes(r.getId()));
 		}
-		return PostService.postsToResponseList(posts);
+		return response;
 	}
 
 	public List<PostResponse> findPostsByHeaderLike(String q) {
 		Pageable pageable = PageRequest.of(0, 5);
 		List<Post> posts = this.postRepository.findAllByHeaderLike(q, pageable).toList();
-		for(Post post : posts) {
-			post.setComment(null);
-			post.getUser().setPosts(null);
-		}
 		return PostService.postsToResponseList(posts);
+	}
+
+	public List<Post> findAllByUserId(Long userId) {
+		List<Post> posts = this.postRepository.findAllByUserId(userId);
+		return posts;
 	}
 }
