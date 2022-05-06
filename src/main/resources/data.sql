@@ -33,3 +33,12 @@ VALUES (11, now(), 'superusername', '$2a$10$JdMSNoDmdvZ.sB91Cn8QrOuLn86GQHhdAGST
 
 INSERT INTO users (id, created_date, username, password, email, role, deleted)
 VALUES (12, now(), 'supersuperusername', '$2a$10$JdMSNoDmdvZ.sB91Cn8QrOuLn86GQHhdAGSTWVbZOc1INzx.KxnTO', 'asdfasdf@asfd.com', 'USER', true);
+
+INSERT INTO posts (id, header, content, created_date, user_id, deleted)
+VALUES (13, 'someheader', 'asdfasdfasdfasdfasd', now(), 12, false);
+
+INSERT INTO posts (id, header, content, created_date, user_id, deleted)
+VALUES (14, 'somesomesomeheader', 'asdfasdfasdfasdfasdfasdfa', now(), 1, false);
+
+INSERT INTO posts (id, header, content, created_date, user_id, deleted)
+VALUES (15, 'asdf', 'asdfasd', now(), 1, true);
