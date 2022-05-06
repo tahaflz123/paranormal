@@ -1,7 +1,6 @@
 package com.paranormal.test.controller;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +23,8 @@ import com.paranormal.dto.request.RegistrationRequest;
 import com.paranormal.dto.response.ErrorModel;
 import com.paranormal.entity.user.User;
 import com.paranormal.service.ErrorMessagesService;
+import com.paranormal.service.ErrorMessagesService.Key;
+import com.paranormal.test.helper.LoginHelper;
 import com.paranormal.test.helper.UserHelper;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
@@ -59,7 +61,6 @@ public class UserControllerIT {
 		
 		final ResponseEntity<String> response = this.restTemplate.postForEntity("/api/user/login", request, String.class);
 		String token = response.getBody();
-		System.err.println(token);
 		assertNotNull(response);
 		assertNotNull(token);
 	}
@@ -108,5 +109,80 @@ public class UserControllerIT {
 		assertNotNull(user);
 		assertEquals(user.getUsername(), UserHelper.getUsername());
 	}
+	
+	
+	@Test
+	void given_user_id_when_delete_user_then_it_should_return_200_and_true() {
+		String token = LoginHelper.loginWithCustomEmail("testemail@mail.com", restTemplate);
+		Long userId = 10L;
+		
+		HttpHeaders headers = new HttpHeaders();
+		headers.add("Authorization", "Bearer " + token);
+		final HttpEntity<String> entity = new HttpEntity<>(headers);
+		final ResponseEntity<Boolean> response = this.restTemplate.exchange("/api/user/delete?id=" + userId, HttpMethod.DELETE, 
+				entity, new ParameterizedTypeReference<Boolean>() {});
+		
+		assertNotNull(response);
+		assertNotNull(response.getBody());
+		assertTrue(response.getBody());
+	}
+	
+	@Test
+	void given_user_id_when_delete_user_as_admin_then_it_should_return_200_and_true() {
+		String token = LoginHelper.loginWithAdmin(restTemplate);
+		Long userId = 11L;
+
+		HttpHeaders headers = new HttpHeaders();
+		headers.add("Authorization", "Bearer " + token);
+		final HttpEntity<String> entity = new HttpEntity<>(headers);
+		final ResponseEntity<Boolean> response = this.restTemplate.exchange("/api/user/admin/delete?id=" + userId, HttpMethod.DELETE, 
+				entity, new ParameterizedTypeReference<Boolean>() {});
+		
+		assertNotNull(response);
+		assertNotNull(response.getBody());
+		assertTrue(response.getBody());
+	}
+	
+	@Test
+	void given_deleted_user_id_when_delete_user_then_it_should_return_409_and_error_model() {
+		String token = LoginHelper.loginWithCustomEmail("asdfasdf@asfd.com",restTemplate);
+		Long userId = 12L;
+
+		HttpHeaders headers = new HttpHeaders();
+		headers.add("Authorization", "Bearer " + token);
+		final HttpEntity<String> entity = new HttpEntity<>(headers);
+		final ResponseEntity<ErrorModel> response = this.restTemplate.exchange("/api/user/delete?id=" + userId, HttpMethod.DELETE, 
+				entity, new ParameterizedTypeReference<ErrorModel>() {});
+		
+		assertNotNull(response);
+		assertNotNull(response.getBody());
+		assertEquals(response.getBody().getErrorCode(), Key.ALREADY_DELETED.name());
+		assertEquals(response.getBody().getMessage(), ErrorMessagesService.getMessage(Key.ALREADY_DELETED));
+		assertEquals(response.getBody().getStatusCode(), 409);
+	}
+	
+	@Test
+	void given_deleted_user_id_when_delete_user_as_admin_then_it_should_return_409_and_error_model() {
+		String token = LoginHelper.loginWithAdmin(restTemplate);
+		Long userId = 12L;
+
+		HttpHeaders headers = new HttpHeaders();
+		headers.add("Authorization", "Bearer " + token);
+		final HttpEntity<String> entity = new HttpEntity<>(headers);
+		final ResponseEntity<ErrorModel> response = this.restTemplate.exchange("/api/user/admin/delete?id=" + userId, HttpMethod.DELETE, 
+				entity, new ParameterizedTypeReference<ErrorModel>() {});
+		
+		assertNotNull(response);
+		assertNotNull(response.getBody());
+		assertEquals(response.getBody().getErrorCode(), Key.ALREADY_DELETED.name());
+		assertEquals(response.getBody().getMessage(), ErrorMessagesService.getMessage(Key.ALREADY_DELETED));
+		assertEquals(response.getBody().getStatusCode(), 409);
+	}
+	
+	
+	
+	
+	
+	
 	
 }
