@@ -35,7 +35,7 @@ public class UserController {
 	}
 	
 	@GetMapping
-	public UserResponse findUserByIdWithUserPosts(@PathParam("id") Long id) {
+	public UserResponse findUserByIdWithPosts(@PathParam("id") Long id) {
 		return this.userService.findUserByIdWithPosts(id);
 	}
 
