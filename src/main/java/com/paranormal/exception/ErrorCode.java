@@ -8,7 +8,9 @@ public enum ErrorCode {
 	POST_HEADER_CONFLICT(409),
 	ACCOUT_ALREADY_EXISTS(409),
     NO_RESOURCE(410),
-	TOKEN_EXPIRED(410);
+	TOKEN_EXPIRED(410),
+	ALREADY_DELETED(409),
+	FORBIDDEN(403);
 	
 	private final int httpCode;
 	
