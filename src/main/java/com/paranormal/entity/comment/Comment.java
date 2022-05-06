@@ -1,5 +1,6 @@
 package com.paranormal.entity.comment;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
@@ -31,11 +32,16 @@ public class Comment extends BaseEntity{
 	@Lob
 	private String content;
 	
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "user_id")
 	private User sender;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "post_id")
 	private Post post;
+	
+	@Column(nullable = false)
+	@Builder.Default
+	private Boolean deleted = false;
+	
 }
