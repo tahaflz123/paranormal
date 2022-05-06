@@ -21,6 +21,8 @@ public class ErrorMessagesService {
 		errorMessages.put(Key.CREDENTIALS_NOT_MATCHING, "Credentials not matching.");
 		errorMessages.put(Key.POST_HEADER_CONFLICT, "Post is already exists with this header, please change the header");
 	    errorMessages.put(Key.NO_RESOURCE, "The following content is deleted or no longer available");
+	    errorMessages.put(Key.ALREADY_DELETED, "The following content already deleted");
+	    errorMessages.put(Key.FORBIDDEN, "You can't access!");
 	}
 	
 	public static String getMessage(Key key) {
@@ -34,6 +36,8 @@ public class ErrorMessagesService {
 		POST_HEADER_CONFLICT,
 		ACCOUNT_ALREADY_EXISTS,
 		NO_RESOURCE,
-		TOKEN_EXPIRED
+		TOKEN_EXPIRED,
+		ALREADY_DELETED,
+		FORBIDDEN
 	}
 }
