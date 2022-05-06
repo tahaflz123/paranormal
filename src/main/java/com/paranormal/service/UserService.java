@@ -18,9 +18,14 @@ import com.paranormal.config.JWTService;
 import com.paranormal.dto.request.LoginRequest;
 import com.paranormal.dto.request.RegistrationRequest;
 import com.paranormal.dto.response.UserResponse;
+import com.paranormal.entity.post.Post;
 import com.paranormal.entity.user.User;
-import com.paranormal.exception.AuthenticationException;
+import com.paranormal.entity.user.UserRole;
+import com.paranormal.exception.ErrorCode;
+import com.paranormal.exception.ParanormalException;
+import com.paranormal.repository.PostRepository;
 import com.paranormal.repository.UserRepository;
+import com.paranormal.service.ErrorMessagesService.Key;
 
 @Service
 public class UserService {
@@ -30,44 +35,52 @@ public class UserService {
 	private UserRepository userRepository;
 	private JWTService jwtService;
 	private BCryptPasswordEncoder passwordEncoder;
+	private PostRepository postRepository;
+	private ErrorMessagesService errorMessagesService;
 	
 	@Autowired
-	public UserService(UserRepository userRepository, JWTService jwtService, BCryptPasswordEncoder passwordEncoder) {
+	public UserService(PostRepository postRepository, UserRepository userRepository,
+			JWTService jwtService, BCryptPasswordEncoder passwordEncoder, ErrorMessagesService errorMessagesService) {
+		this.postRepository = postRepository;
 		this.userRepository = userRepository;
 		this.jwtService = jwtService;
 		this.passwordEncoder = passwordEncoder;
+		this.errorMessagesService = errorMessagesService;
 	}
 	
 	public User register(RegistrationRequest request) {
 		Boolean exists = this.userRepository.existsByEmailOrUsername(request.getEmail(),request.getUsername());
 		if(exists) {
-			throw new AuthenticationException("Email or Username is valid");
+			throw new ParanormalException(ErrorCode.EMAIL_ALREADY_EXISTS, this.errorMessagesService.getMessage(ErrorMessagesService.Key.EMAIL_ALREADY_EXISTS));
 		}
 		logger.info(request.toString());
 		User user = User.builder()
 				.username(request.getUsername())
 				.email(request.getEmail())
 				.password(this.passwordEncoder.encode(request.getPassword()))
-				.posts(null)
+				.role(UserRole.USER)
 				.build();
 		user.setCreatedDate(new Date());
 		return this.userRepository.save(user);
 	}
 	
 	public String login(LoginRequest request) {
-		User user = this.userRepository.findByEmail(request.getEmail());
+		User user = this.userRepository.findByEmail(request.getEmail())
+				.orElseThrow(() -> new ParanormalException(ErrorCode.CREADENTIALS_NOT_MATCHING, 
+						this.errorMessagesService.getMessage(ErrorMessagesService.Key.CREDENTIALS_NOT_MATCHING)));
+		
 		if(!this.passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-			throw new AuthenticationException("Credentials not matching.");
+			throw new ParanormalException(ErrorCode.CREADENTIALS_NOT_MATCHING, this.errorMessagesService.getMessage(ErrorMessagesService.Key.CREDENTIALS_NOT_MATCHING));
 		}
+		
 		return this.jwtService.createToken(user.getEmail());
 	}
 	
 	public User getLoggedInUser() {
 		String email = SecurityContextHolder.getContext().getAuthentication().getName();
-		if(email.isEmpty()) {
-			throw new AuthenticationException("You should login for creating post");
-		}
-		return this.userRepository.findByEmail(email);
+		return this.userRepository.findByEmail(email)
+				.orElseThrow(() -> new ParanormalException(ErrorCode.UNAUTHORIZED, 
+						this.errorMessagesService.getMessage(ErrorMessagesService.Key.UNAUTHORIZED)));
 	}
 	
 	public List<User> findAll(){
@@ -85,15 +98,35 @@ public class UserService {
 	}
 	
 	public static UserResponse userToResponse(User user) {
-		return UserResponse.builder().id(user.getId()).posts(PostService.postsToResponseList(user.getPosts())).username(user.getUsername()).build();
+		return UserResponse.builder()
+				.id(user.getId())
+				.username(user.getUsername())
+				.build();
+	}
+	
+	//TODO: Finds all posts with user id
+	public UserResponse findUserByIdWithUserPosts(Long id) {
+		User user = this.userRepository.findById(id)
+				.orElseThrow(() -> new ParanormalException(ErrorCode.NO_RESOURCE, 
+						this.errorMessagesService.getMessage(ErrorMessagesService.Key.NO_RESOURCE)));
+		
+		List<Post> posts = this.postRepository.findAllByUserId(id);
+		
+		UserResponse response = UserResponse.builder()
+				.username(user.getUsername())
+				.id(user.getId())
+				.build();
+		
+		if(posts != null) {
+			response.setPosts(PostService.postsToResponseList(posts));
+		}
+		
+		return response;
 	}
 
 	public List<UserResponse> findUsersByUsernameLike(String q) {
 		Pageable pageable = PageRequest.of(0, 5);
 		List<User> users = this.userRepository.findAllByUsernameLike(q, pageable).toList();
-		for(User user : users) {
-			user.setPosts(null);
-		}
 		return UserService.usersToResponseList(users);
 	}
 }
