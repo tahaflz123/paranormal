@@ -14,6 +14,7 @@ import com.paranormal.dto.response.PostResponse;
 import com.paranormal.entity.comment.Comment;
 import com.paranormal.entity.post.Post;
 import com.paranormal.entity.user.User;
+import com.paranormal.entity.user.UserRole;
 import com.paranormal.exception.ErrorCode;
 import com.paranormal.exception.ParanormalException;
 import com.paranormal.repository.PostRepository;
@@ -119,4 +120,31 @@ public class PostService {
 		List<Post> posts = this.postRepository.findAllByUserId(userId);
 		return posts;
 	}
+	
+	
+	public Boolean deletePostById(Long id) {
+		User user = this.userService.getLoggedInUser();
+		Post post = this.findById(id);
+		if(post.getDeleted()) {
+			throw new ParanormalException(ErrorCode.ALREADY_DELETED, ErrorMessagesService.getMessage(Key.ALREADY_DELETED));
+		}
+		
+		if(user.getId() != post.getUser().getId() && !(user.getRole().equals(UserRole.ADMIN))) {
+			throw new ParanormalException(ErrorCode.FORBIDDEN, ErrorMessagesService.getMessage(Key.FORBIDDEN));
+		}
+		
+		post.setDeleted(true);
+		this.postRepository.save(post);
+		return true;
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 }
