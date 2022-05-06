@@ -5,6 +5,8 @@ import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -31,11 +33,20 @@ import lombok.ToString;
 @Builder
 public class User extends BaseEntity {
 	
-	@Column(name = "username", unique = true)
+	@Column(name = "username", unique = true, nullable = false)
 	private String username;
 	
-	@Column(name = "email", unique = true)
+	@Column(name = "email", unique = true, nullable = false)
 	private String email;
 	
+	@Column(nullable = false)
+	@Enumerated(EnumType.STRING)
+	private UserRole role;
+	
+	@Column(nullable = false)
 	private String password;
+	
+	@Column(nullable = false)
+	@Builder.Default
+	private Boolean deleted = false;
 }
